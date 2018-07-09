@@ -12,7 +12,7 @@ import java.util.Collections;
  * @author andaicheng
  * @since 2018/4/22
  */
-public class SimpleRedisLock implements Lock {
+public class SimpleRedisLock {
 
     private static final String LOCK_SUCCESS = "OK";
     private static final Long RELEASE_SUCCESS = 1L;

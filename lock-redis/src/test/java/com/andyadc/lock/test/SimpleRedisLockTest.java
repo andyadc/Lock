@@ -23,9 +23,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SimpleRedisLockTest {
 
     private static final String QQ_SERVER = "www.qq-server.com";
+    private static final String LOCK_SERVER = "127.0.0.1";
     private static final int REDIS_PORT = 6377;
     private static final AtomicInteger num = new AtomicInteger(0);
-    private static JedisPoolConfig config;
+    private static final JedisPoolConfig config;
     private static JedisPool jedisPool;
 
     static {
@@ -33,7 +34,7 @@ public class SimpleRedisLockTest {
         config.setMaxTotal(30);
         config.setMaxIdle(10);
 
-        jedisPool = new JedisPool(config, QQ_SERVER, REDIS_PORT, 30000, "andyadc");
+        jedisPool = new JedisPool(config, LOCK_SERVER, REDIS_PORT, 30000, "andyadc");
     }
 
     @Rule
