@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>lock-redis</artifactId>
+    <artifactId>lock-zookeeper</artifactId>
     <version>1.0.0</version>
 
     <dependencies>
@@ -18,7 +18,7 @@
             <artifactId>lock-api</artifactId>
             <version>1.0.0</version>
         </dependency>
-
+        
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -28,8 +28,12 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
         <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
         </dependency>
     </dependencies>
 </project>
