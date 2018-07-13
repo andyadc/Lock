@@ -11,8 +11,8 @@ import org.apache.zookeeper.ZooKeeper;
  *
  * @author Scott Fines
  * @version 1.0
- *          Date: 20-Nov-2010
- *          Time: 17:11:32
+ * Date: 20-Nov-2010
+ * Time: 17:11:32
  */
 public interface ZkSessionManager {
 
@@ -28,7 +28,7 @@ public interface ZkSessionManager {
      *
      * @return a ZooKeeper instance to use
      * @throws IllegalStateException if this SessionManager has been closed
-     * @throws RuntimeException if a connection problem occurs with the ZooKeeper service
+     * @throws RuntimeException      if a connection problem occurs with the ZooKeeper service
      */
     ZooKeeper getZooKeeper();
 

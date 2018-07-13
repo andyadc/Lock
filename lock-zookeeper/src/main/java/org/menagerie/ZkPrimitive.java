@@ -1,6 +1,10 @@
 package org.menagerie;
 
-import org.apache.zookeeper.*;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
 
@@ -8,8 +12,6 @@ import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-
 
 /**
  * Base class for ZooKeeper client primitives.
@@ -57,7 +59,7 @@ public class ZkPrimitive {
      * Setting this to {@code true} will cause some subclasses to cancel their activities, on the basis that they are
      * no longer able to complete a given task.
      */
-    protected volatile boolean broken=false;
+    protected volatile boolean broken = false;
 
     /**
      * Connection listener to attach to the session manager when listening for Session events is necessary
@@ -74,12 +76,12 @@ public class ZkPrimitive {
     /**
      * Creates a new ZkPrimitive with the correct node information.
      *
-     * @param baseNode the base node to use
+     * @param baseNode         the base node to use
      * @param zkSessionManager the session manager to use
-     * @param privileges the privileges for this node.
+     * @param privileges       the privileges for this node.
      */
     protected ZkPrimitive(String baseNode, ZkSessionManager zkSessionManager, List<ACL> privileges) {
-        if(baseNode==null)
+        if (baseNode == null)
             throw new NullPointerException("No base node specified!");
         this.baseNode = baseNode;
         this.zkSessionManager = zkSessionManager;
@@ -98,31 +100,30 @@ public class ZkPrimitive {
      * node which doesn't exist, a NoNode Exception will be thrown.
      *
      * @throws RuntimeException wrapping a KeeperException if something goes wrong communicating with the ZooKeeper server
-     *         RuntimeException wrapping an InterruptedException if something goes wrong communicating with the ZooKeeper
-     *                                  Server.
+     *                          RuntimeException wrapping an InterruptedException if something goes wrong communicating with the ZooKeeper
+     *                          Server.
      */
-    protected final void ensureNodeExists(){
+    protected final void ensureNodeExists() {
         try {
             ZooKeeper zooKeeper = zkSessionManager.getZooKeeper();
 
             Stat stat = zooKeeper.exists(baseNode, false);
-            if(stat==null){
-                zooKeeper.create(baseNode,emptyNode,privileges, CreateMode.PERSISTENT);
+            if (stat == null) {
+                zooKeeper.create(baseNode, emptyNode, privileges, CreateMode.PERSISTENT);
             }
         } catch (KeeperException e) {
             //if the node already exists, then we are happy, so ignore those exceptions
-            if(e.code()!= KeeperException.Code.NODEEXISTS)
+            if (e.code() != KeeperException.Code.NODEEXISTS)
                 throw new RuntimeException(e);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o.getClass()!=this.getClass()) return false;
+        if (o.getClass() != this.getClass()) return false;
 
         ZkPrimitive that = (ZkPrimitive) o;
 
@@ -137,31 +138,30 @@ public class ZkPrimitive {
     /**
      * Set {@link #connectionListener} to the Session Manager to begin listening for session events.
      */
-    protected void setConnectionListener(){
+    protected void setConnectionListener() {
         zkSessionManager.addConnectionListener(connectionListener);
     }
 
     /**
      * remove {@link #connectionListener} from the Session Manager, and stop listening for session events
      */
-    protected void removeConnectionListener(){
+    protected void removeConnectionListener() {
         zkSessionManager.removeConnectionListener(connectionListener);
     }
 
     /**
      * Notifies any/all parties which may be waiting for {@link #signalWatcher} to fire.
      */
-    protected void notifyParties(){
+    protected void notifyParties() {
         localLock.lock();
-        try{
+        try {
             condition.signalAll();
-        }finally{
+        } finally {
             localLock.unlock();
         }
     }
 
-
-    private static class PrimitiveConnectionListener extends ConnectionListenerSkeleton{
+    private static class PrimitiveConnectionListener extends ConnectionListenerSkeleton {
         private final ZkPrimitive primitive;
 
         private PrimitiveConnectionListener(ZkPrimitive primitive) {
@@ -178,12 +178,12 @@ public class ZkPrimitive {
         @Override
         public void expired() {
             //indicate that this lock is broken, and alert all waiting threads to throw an Exception
-            primitive.broken=true;
+            primitive.broken = true;
             primitive.notifyParties();
         }
     }
 
-    private static class SignallingWatcher implements Watcher{
+    private static class SignallingWatcher implements Watcher {
         private final ZkPrimitive primitive;
 
         private SignallingWatcher(ZkPrimitive primitive) {

@@ -7,9 +7,9 @@ package org.menagerie;
  */
 public interface ZkStateListener {
 
-     void syncConnected();
+    void syncConnected();
 
-     void sessionExpired();
+    void sessionExpired();
 
-     void disconnected();
+    void disconnected();
 }

@@ -1,14 +1,19 @@
 package org.menagerie;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 /**
  * Serializer based on Java Serialization.
  *
  * @author Scott Fines
  * @version 1.0
- *          Date: 20-Jan-2011
- *          Time: 08:45:40
+ * Date: 20-Jan-2011
+ * Time: 08:45:40
  */
 public class JavaSerializer<T extends Serializable> implements Serializer<T> {
 
@@ -16,8 +21,8 @@ public class JavaSerializer<T extends Serializable> implements Serializer<T> {
     @SuppressWarnings({"unchecked"})
     public T deserialize(byte[] data) {
         try {
-            ObjectInputStream inputStream  = new ObjectInputStream(new ByteArrayInputStream(data));
-            return (T)inputStream.readObject();
+            ObjectInputStream inputStream = new ObjectInputStream(new ByteArrayInputStream(data));
+            return (T) inputStream.readObject();
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
@@ -28,7 +33,7 @@ public class JavaSerializer<T extends Serializable> implements Serializer<T> {
 
     @Override
     public byte[] serialize(T instance) {
-         try {
+        try {
             ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
             ObjectOutputStream arrayOutput = new ObjectOutputStream(byteArrayStream);
             arrayOutput.writeObject(instance);
