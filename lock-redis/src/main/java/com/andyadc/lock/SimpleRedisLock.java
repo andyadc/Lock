@@ -4,6 +4,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.util.Collections;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * <URL>http://wudashan.com/2017/10/23/Redis-Distributed-Lock-Implement/</URL>
@@ -20,6 +21,11 @@ public class SimpleRedisLock {
     private static final String SET_WITH_EXPIRE_TIME = "PX";
 
     private static String LOCK_KEY_PREFIX = "lock:";
+
+    /**
+     * A local mutex lock for managing inter-thread synchronization
+     */
+    private final ReentrantLock localLock = new ReentrantLock(false);
 
     private JedisPool jedisPool;
 
@@ -49,6 +55,23 @@ public class SimpleRedisLock {
                                  String requestId) {
         String result = jedis.set(lockKey, requestId, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, expireTime);
         return LOCK_SUCCESS.equals(result);
+    }
+
+    private void lockInner(Jedis jedis,
+                           String lockKey,
+                           int expireTime,
+                           String requestId) {
+        for (; ; ) {
+            localLock.lock();
+            try {
+                String result = jedis.set(lockKey, requestId, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, expireTime);
+                if (LOCK_SUCCESS.equals(result)) {
+                    return;
+                }
+            } finally {
+                localLock.unlock();
+            }
+        }
     }
 
     private boolean releaseLockInner(Jedis jedis,
