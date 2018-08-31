@@ -33,9 +33,12 @@ public class SimpleRedisLock {
         this.jedisPool = jedisPool;
     }
 
-    public boolean lock(String lockKey,
-                        int expireTime,
-                        String requestId) {
+    /**
+     * Acquires the lock only if it is free at the time of invocation.
+     */
+    public boolean tryLock(String lockKey,
+                           int expireTime,
+                           String requestId) {
         lockKey = LOCK_KEY_PREFIX + lockKey;
         try (Jedis jedis = jedisPool.getResource()) {
             return this.tryLockInner(jedis, lockKey, expireTime, requestId);
@@ -78,6 +81,7 @@ public class SimpleRedisLock {
                                      String lockKey,
                                      String requestId) {
 
+        // lua script
         String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
         Object result = jedis.eval(script, Collections.singletonList(lockKey), Collections.singletonList(requestId));
         return RELEASE_SUCCESS.equals(result);

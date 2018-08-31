@@ -64,7 +64,7 @@ public class SimpleRedisLockTest {
     @Test
     public void lock2() {
         SimpleRedisLock lock = new SimpleRedisLock(jedisPool);
-        System.out.println(lock.lock("adc", 100000, "home-pc"));
+        System.out.println(lock.tryLock("adc", 100000, "home-pc"));
     }
 
     @PerfTest(threads = 10, invocations = 10)
@@ -88,7 +88,7 @@ public class SimpleRedisLockTest {
         public void run() {
             SimpleRedisLock lock = new SimpleRedisLock(jedisPool);
             System.out.println(Thread.currentThread().getName() + num.incrementAndGet() + " require lock result: "
-                    + lock.lock("adc", 100000, "home-pc")
+                    + lock.tryLock("adc", 100000, "home-pc")
                     + " " + LocalDateTime.now());
             try {
                 TimeUnit.SECONDS.sleep(1);
