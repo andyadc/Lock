@@ -34,13 +34,12 @@ public class SimpleRedisLockTest {
         config.setMaxTotal(30);
         config.setMaxIdle(10);
 
-        jedisPool = new JedisPool(config, LOCK_SERVER, REDIS_PORT, 30000, "andyadc");
+        jedisPool = new JedisPool(config, QQ_SERVER, REDIS_PORT, 30000, "andyadc");
     }
 
     @Rule
     public ContiPerfRule rule = new ContiPerfRule();
 
-    @PerfTest(threads = 10, invocations = 10)
     @Test
     public void ping() {
         Jedis jedis = jedisPool.getResource();
@@ -60,18 +59,18 @@ public class SimpleRedisLockTest {
         System.out.println("-----------------------------------------------");
     }
 
-    @PerfTest(threads = 10, invocations = 10)
+    //@PerfTest(threads = 10, invocations = 10)
     @Test
     public void lock2() {
         SimpleRedisLock lock = new SimpleRedisLock(jedisPool);
-        System.out.println(lock.tryLock("adc", 100000, "home-pc"));
+        System.out.println(lock.tryLock("adc", 100000));
     }
 
     @PerfTest(threads = 10, invocations = 10)
     @Test
     public void unlock() {
         SimpleRedisLock lock = new SimpleRedisLock(jedisPool);
-        System.out.println(lock.unlock("adc", "home-pc"));
+        System.out.println(lock.unlock("adc"));
     }
 
     static class Locker implements Runnable {
@@ -88,7 +87,7 @@ public class SimpleRedisLockTest {
         public void run() {
             SimpleRedisLock lock = new SimpleRedisLock(jedisPool);
             System.out.println(Thread.currentThread().getName() + num.incrementAndGet() + " require lock result: "
-                    + lock.tryLock("adc", 100000, "home-pc")
+                    + lock.tryLock("adc", 100000)
                     + " " + LocalDateTime.now());
             try {
                 TimeUnit.SECONDS.sleep(1);
